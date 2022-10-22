@@ -13,5 +13,8 @@ struct LinkActorApp: App {
         WindowGroup {
             ContentView()
         }
+        Settings {
+            SettingsView()
+        }
     }
 }
