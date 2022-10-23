@@ -23,6 +23,9 @@
 		9CA344722903138D0041FD2C /* BookmarksListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA344712903138D0041FD2C /* BookmarksListViewModel.swift */; };
 		9CA344752903EFBD0041FD2C /* PublisherExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA344742903EFBD0041FD2C /* PublisherExtension.swift */; };
 		9CA344772903FD8A0041FD2C /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA344762903FD8A0041FD2C /* StringExtension.swift */; };
+		9CA34479290572880041FD2C /* BookmarkListDropDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA34478290572880041FD2C /* BookmarkListDropDelegate.swift */; };
+		9CA3447B29059E6C0041FD2C /* BareBookmarksListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3447A29059E6C0041FD2C /* BareBookmarksListView.swift */; };
+		9CA3447E2905A6230041FD2C /* Trash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3447D2905A6230041FD2C /* Trash.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +66,9 @@
 		9CA344712903138D0041FD2C /* BookmarksListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarksListViewModel.swift; sourceTree = "<group>"; };
 		9CA344742903EFBD0041FD2C /* PublisherExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublisherExtension.swift; sourceTree = "<group>"; };
 		9CA344762903FD8A0041FD2C /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
+		9CA34478290572880041FD2C /* BookmarkListDropDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkListDropDelegate.swift; sourceTree = "<group>"; };
+		9CA3447A29059E6C0041FD2C /* BareBookmarksListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BareBookmarksListView.swift; sourceTree = "<group>"; };
+		9CA3447D2905A6230041FD2C /* Trash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Trash.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,15 +123,15 @@
 				9C70F5DD28FAC77900A9190F /* LinkActorApp.swift */,
 				9C70F5DF28FAC77900A9190F /* ContentView.swift */,
 				9CA3446D2901C9E00041FD2C /* AppDelegate.swift */,
-				9C70F60828FB0FA800A9190F /* Bookmark.swift */,
-				9C70F60C28FC7A8A00A9190F /* BookmarkList.swift */,
-				9C70F60A28FB10E300A9190F /* ApiCall.swift */,
+				9CA3447C2905A5F90041FD2C /* API */,
 				9C70F5E128FAC77A00A9190F /* Assets.xcassets */,
 				9C70F5E628FAC77A00A9190F /* LinkActor.entitlements */,
 				9C70F5E328FAC77A00A9190F /* Preview Content */,
 				9C6C505929001ECE00C3C7B8 /* PreferencesWindow.swift */,
 				9CA3446F2902F1FC0041FD2C /* BookmarksDataStore.swift */,
 				9CA344712903138D0041FD2C /* BookmarksListViewModel.swift */,
+				9CA34478290572880041FD2C /* BookmarkListDropDelegate.swift */,
+				9CA3447A29059E6C0041FD2C /* BareBookmarksListView.swift */,
 			);
 			path = LinkActor;
 			sourceTree = "<group>";
@@ -162,6 +168,17 @@
 				9CA344762903FD8A0041FD2C /* StringExtension.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		9CA3447C2905A5F90041FD2C /* API */ = {
+			isa = PBXGroup;
+			children = (
+				9C70F60828FB0FA800A9190F /* Bookmark.swift */,
+				9C70F60C28FC7A8A00A9190F /* BookmarkList.swift */,
+				9C70F60A28FB10E300A9190F /* ApiCall.swift */,
+				9CA3447D2905A6230041FD2C /* Trash.swift */,
+			);
+			path = API;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -294,10 +311,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CA3447E2905A6230041FD2C /* Trash.swift in Sources */,
 				9C70F60B28FB10E300A9190F /* ApiCall.swift in Sources */,
 				9C70F60928FB0FA800A9190F /* Bookmark.swift in Sources */,
 				9C70F5E028FAC77900A9190F /* ContentView.swift in Sources */,
+				9CA34479290572880041FD2C /* BookmarkListDropDelegate.swift in Sources */,
 				9CA344702902F1FC0041FD2C /* BookmarksDataStore.swift in Sources */,
+				9CA3447B29059E6C0041FD2C /* BareBookmarksListView.swift in Sources */,
 				9CA344722903138D0041FD2C /* BookmarksListViewModel.swift in Sources */,
 				9C70F60D28FC7A8A00A9190F /* BookmarkList.swift in Sources */,
 				9CA3446E2901C9E00041FD2C /* AppDelegate.swift in Sources */,

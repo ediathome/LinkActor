@@ -39,19 +39,19 @@ struct BookmarkPage: Codable {
 struct Bookmark: Codable, Identifiable {
     let id, userID: Int
     let url: String
-    let title, datumDescription, icon: String
+    let title, description, icon: String?
     let thumbnail: String?
     let isPrivate: Bool
     let status: Int
     let checkDisabled: Bool
-    let createdAt, updatedAt: String
-    let deletedAt: JSONNull?
+    let createdAt, updatedAt: String?
+    let deletedAt: String?
 
     enum CodingKeys: String, CodingKey {
         case id
         case userID = "user_id"
         case url, title
-        case datumDescription = "description"
+        case description = "description"
         case icon, thumbnail
         case isPrivate = "is_private"
         case status

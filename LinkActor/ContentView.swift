@@ -54,6 +54,7 @@ struct Sidebar: View {
                 ForEach(bookmarkListsModel.lists) { bmList in
                     NavigationLink(bmList.name ?? "", destination: BookmarksListView(bookmarkList: bmList))
                 }
+                NavigationLink("Trash", destination: TrashBookmarksListView())
             }
             .frame(width: 240, alignment: .topLeading)
             .navigationTitle("Bookmarks")
@@ -85,51 +86,6 @@ struct Sidebar: View {
     }
 }
 
-struct BareBookmarksListView: View {
-
-    @State var bookmarkList: BookmarkList?
-    @State var bookmarks = [Bookmark]()
-    @State var filteredBookmarks: [Bookmark]?
-    @State var filterText = ""
-    
-    let toolbarPlacement: SearchFieldPlacement = .toolbar
-
-    func filter(by: String) {
-        if (by == "") {
-            filteredBookmarks = $bookmarks.wrappedValue
-            return
-        }
-        filteredBookmarks = $bookmarks.wrappedValue.filter { bm in
-            bm.title.matches(pattern: by)
-        }
-    }
-    func didLoadBookmarks(bookmarks: [Bookmark]) {
-        self.bookmarks = bookmarks
-        filter(by: filterText)
-    }
-    var body: some View {
-        
-        List(filteredBookmarks ?? self.bookmarks) { bm in
-            NavigationLink(bm.title, destination: BookmarkDetailView(bookmark: bm))
-                .frame(maxHeight: 32)
-                .help(bm.title)
-        }
-        .searchable(text: $filterText, placement: toolbarPlacement)
-        .onChange(of: filterText, perform: { nFilter in
-            filter(by: nFilter)
-        })
-        .onAppear(perform: {
-            if (self.bookmarkList == nil) {
-                apiCall().getAllBookmarks(completion: didLoadBookmarks(bookmarks:))
-            } else {
-                apiCall().getBoomarksInList(bookmarkList: self.bookmarkList!, completion: didLoadBookmarks(bookmarks:))
-            }
-            self.filteredBookmarks = bookmarks
-            filter(by: "t")
-        })
-    }
-}
-
 struct AllBookmarksListView: View {
 
     @State var bookmarks = [Bookmark]()
@@ -153,17 +109,27 @@ struct BookmarksListView: View {
     }
 }
 
+struct TrashBookmarksListView: View {
+    @State var bookmarks = [Bookmark]()
+    var body: some View {
+        VStack {
+            BareBookmarksListView(showTrash: true)
+        }
+        .frame(width: 240, height: .infinity, alignment: .topLeading)
+    }
+}
+
 struct BookmarkDetailView: View {
     
     @State var bookmark: Bookmark
     
     var body: some View {
         
-        let bmdesc = try? AttributedString.init(markdown: bookmark.datumDescription)
+        let bmdesc = try? AttributedString.init(markdown: bookmark.description ?? "")
         let bmlink = try? AttributedString.init(markdown: "[" + bookmark.url + "](" + bookmark.url + ")")
         
         VStack(alignment: .leading, spacing: 24) {
-            Text(bookmark.title)
+            Text(bookmark.title ?? "untitled")
                 .font(.title)
                 .fontWeight(.bold)
                 .textSelection(.enabled)

@@ -77,9 +77,11 @@ class apiCall {
         .eraseToAnyPublisher()
     }
     
-    func getAllBookmarks(completion:@escaping ([Bookmark]) -> ()) {
+    func getAllBookmarks(completion:@escaping ([Bookmark]) -> (), apiUrlPath: String? = nil) {
         var urlComponents = getStandardUrlComponents()
-        urlComponents.path = urlComponents.path + "/links"
+
+        urlComponents.path = urlComponents.path + (apiUrlPath ?? "/links")
+
         urlComponents.queryItems = [
            URLQueryItem(name: "order_by", value: "title"),
            URLQueryItem(name: "order_dir", value: "asc")
@@ -90,7 +92,42 @@ class apiCall {
         
         URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
             let bmPage = try? JSONDecoder().decode(BookmarkPage.self, from: jsonData!)
+            if(bmPage == nil) {
+                print("bmPage: is nil \(bmPage)")
+                print(jsonData)
+            }
             let bookmarks = bmPage?.data
+            if(bookmarks == nil) {
+                print("\n\nERROR loading bookmarks got nil")
+                print(response)
+                print("\n\n")
+            }
+
+            DispatchQueue.main.async {
+                completion(bookmarks ?? [Bookmark]())
+            }
+        }
+        .resume()
+    }
+    func getTrashBookmarks(completion:@escaping ([Bookmark]) -> ()) {
+        var urlComponents = getStandardUrlComponents()
+
+        urlComponents.path = urlComponents.path + "/trash/links"
+
+        urlComponents.queryItems = [
+           URLQueryItem(name: "order_by", value: "title"),
+           URLQueryItem(name: "order_dir", value: "asc")
+        ]
+        
+        guard let url = urlComponents.url?.absoluteURL  else { return }
+        guard let request = try? getStandardRequest(url: url) else { return }
+        
+        URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
+            let bookmarks = try? JSONDecoder().decode([Bookmark].self, from: jsonData!)
+            if(bookmarks == nil) {
+                print("bookmarks in trash is nil")
+            }
+
             DispatchQueue.main.async {
                 completion(bookmarks ?? [Bookmark]())
             }
@@ -145,5 +182,40 @@ class apiCall {
         }
         .resume()
         return true
+    }
+    
+    func newBookmark(bookmarkUrl: URL) -> Result<Bool, NetworkError> {
+        var urlComponents = getStandardUrlComponents()
+        urlComponents.path = urlComponents.path + "/links"
+
+        guard let url = urlComponents.url?.absoluteURL  else {
+            print("invalid urlComponent received")
+            return .failure(.invalidURL)
+        }
+        guard var request = try? getStandardRequest(url: url, method: "POST") else {
+            print("error getting standard request for method post")
+            return .failure(.invalidURL)
+        }
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let parameters: [String: Any] = [
+            "url" : bookmarkUrl.absoluteString
+        ]
+        guard let httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: []) else {
+            print("error encoding json data for POST request")
+            return .failure(.invalidURL)
+        }
+        request.httpBody = httpBody as Data
+
+        
+        URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
+            // let bmPage = try? JSONDecoder().decode(BookmarkPage.self, from: jsonData!)
+            print("newBookmark response: \(response)")
+            if (error != nil) {
+                print("dataTask failed with \(error)")
+            }
+        }
+        .resume()
+        return .success(true)
     }
 }
