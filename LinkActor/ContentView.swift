@@ -9,7 +9,9 @@ import SwiftUI
 import AppKit
 
 struct ContentView: View {
-    
+
+    @AppStorage("linkAceURL") var linkAceURL: String = ""
+
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State var bookmarkLists = [BookmarkList]()
     
@@ -22,7 +24,7 @@ struct ContentView: View {
         .navigationTitle("Bookmarks")
         .toolbar(content: {
             ToolbarItemGroup {
-                Text("…@")
+                Text("@\(linkAceURL)")
                     .frame(alignment: .leading)
             }
         })
@@ -55,6 +57,9 @@ struct Sidebar: View {
             }
             .frame(width: 240, alignment: .topLeading)
             .navigationTitle("Bookmarks")
+            .onAppear(perform: {
+                // insert some code to select the "All" item
+            })
             .onChange(of: linkAceURL, perform: { newUrl in
                 bookmarkListsModel.reload()
             })
@@ -80,35 +85,58 @@ struct Sidebar: View {
     }
 }
 
+struct BareBookmarksListView: View {
 
-struct AllBookmarksListView: View {
+    @State var bookmarkList: BookmarkList?
     @State var bookmarks = [Bookmark]()
-    @State var filteredBookmarks = [Bookmark]()
+    @State var filteredBookmarks: [Bookmark]?
     @State var filterText = ""
     
+    let toolbarPlacement: SearchFieldPlacement = .toolbar
+
+    func filter(by: String) {
+        if (by == "") {
+            filteredBookmarks = $bookmarks.wrappedValue
+            return
+        }
+        filteredBookmarks = $bookmarks.wrappedValue.filter { bm in
+            bm.title.matches(pattern: by)
+        }
+    }
+    func didLoadBookmarks(bookmarks: [Bookmark]) {
+        self.bookmarks = bookmarks
+        filter(by: filterText)
+    }
+    var body: some View {
+        
+        List(filteredBookmarks ?? self.bookmarks) { bm in
+            NavigationLink(bm.title, destination: BookmarkDetailView(bookmark: bm))
+                .frame(maxHeight: 32)
+                .help(bm.title)
+        }
+        .searchable(text: $filterText, placement: toolbarPlacement)
+        .onChange(of: filterText, perform: { nFilter in
+            filter(by: nFilter)
+        })
+        .onAppear(perform: {
+            if (self.bookmarkList == nil) {
+                apiCall().getAllBookmarks(completion: didLoadBookmarks(bookmarks:))
+            } else {
+                apiCall().getBoomarksInList(bookmarkList: self.bookmarkList!, completion: didLoadBookmarks(bookmarks:))
+            }
+            self.filteredBookmarks = bookmarks
+            filter(by: "t")
+        })
+    }
+}
+
+struct AllBookmarksListView: View {
+
+    @State var bookmarks = [Bookmark]()
+
     var body: some View {
         VStack {
-            List(filteredBookmarks) { bm in
-                NavigationLink(bm.title, destination: BookmarkDetailView(bookmark: bm))
-                    .frame(maxHeight: 32)
-                    .help(bm.title)
-            }
-            .searchable(text: $filterText, placement: .toolbar)
-            .onChange(of: filterText, perform: { nFilter in
-                if (nFilter == "") {
-                    filteredBookmarks = bookmarks
-                    return
-                }
-                filteredBookmarks = bookmarks.filter { bm in
-                    bm.title.matches(pattern: nFilter)
-                }
-            })
-        }
-        .onAppear() {
-            apiCall().getAllBookmarks(completion: { (bookmarks) in
-                self.bookmarks = bookmarks
-                self.filteredBookmarks = bookmarks
-            })
+            BareBookmarksListView()
         }
         .frame(width: 240, alignment: .topLeading)
     }
@@ -118,20 +146,12 @@ struct BookmarksListView: View {
     @State var bookmarkList: BookmarkList
     @State var bookmarks = [Bookmark]()
     var body: some View {
-        List(bookmarks) { bm in
-            NavigationLink(bm.title, destination: BookmarkDetailView(bookmark: bm))
-                .frame(maxHeight: 32)
-                .help(bm.title)
-        }
-        .onAppear() {
-            apiCall().getBoomarksInList(bookmarkList: self.bookmarkList, completion: { (bookmarks) in
-                self.bookmarks = bookmarks
-            })
+        VStack {
+            BareBookmarksListView(bookmarkList: bookmarkList)
         }
         .frame(width: 240, height: .infinity, alignment: .topLeading)
     }
 }
-
 
 struct BookmarkDetailView: View {
     

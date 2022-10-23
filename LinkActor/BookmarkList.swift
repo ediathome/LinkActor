@@ -7,6 +7,7 @@ import Foundation
 
 // MARK: - ListPage
 struct ListPage: Codable {
+    
     let currentPage: Int
     let data: [BookmarkList]
     let firstPageURL: String
@@ -36,7 +37,7 @@ struct ListPage: Codable {
 }
 
 // MARK: - Datum
-struct BookmarkList: Codable, Identifiable {
+struct BookmarkList: Codable, Identifiable, Hashable {
     let id, userID: Int
     let name, datumDescription: String?
     let isPrivate: Bool
