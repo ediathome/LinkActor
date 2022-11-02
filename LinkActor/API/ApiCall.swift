@@ -12,16 +12,13 @@ import Foundation
 import SwiftUI
 import Combine
 
-struct LoadDetails: Identifiable {
-    var id: ObjectIdentifier
-    
-    let name: String
-    let error: String
-}
-
 enum NetworkError: Error {
     case invalidURL
+    case unauthorized
+    case unprocessableEntity
 }
+
+
 
 class apiCall {
 
@@ -93,13 +90,13 @@ class apiCall {
         URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
             let bmPage = try? JSONDecoder().decode(BookmarkPage.self, from: jsonData!)
             if(bmPage == nil) {
-                print("bmPage: is nil \(bmPage)")
-                print(jsonData)
+                print("bmPage: is nil")
+                print(jsonData as Any)
             }
             let bookmarks = bmPage?.data
             if(bookmarks == nil) {
                 print("\n\nERROR loading bookmarks got nil")
-                print(response)
+                print(response as Any)
                 print("\n\n")
             }
 
@@ -134,6 +131,35 @@ class apiCall {
         }
         .resume()
     }
+    func emptyTrash() -> Result<Bool, NetworkError> {
+        var urlComponents = getStandardUrlComponents()
+        urlComponents.path = urlComponents.path + "/trash/clear"
+
+        urlComponents.queryItems = [
+           URLQueryItem(name: "model", value: "links")
+        ]
+
+        guard let url = urlComponents.url?.absoluteURL  else {
+            print("invalid urlComponent received")
+            return .failure(.invalidURL)
+        }
+        guard var request = try? getStandardRequest(url: url, method: "POST") else {
+            print("error getting standard request for method post")
+            return .failure(.invalidURL)
+        }
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "DELETE"
+        
+        URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
+            print("Empty trash response: \(response as Any)")
+            if (error != nil) {
+                print("dataTask failed with \(error as Any)")
+            }
+        }
+        .resume()
+        return .success(true)
+    }
+
     func getBoomarksInList(bookmarkList: BookmarkList, completion:@escaping ([Bookmark]) -> ()) {
         var urlComponents = getStandardUrlComponents()
         urlComponents.path = urlComponents.path + "/lists/" + String(bookmarkList.id) + "/links"
@@ -154,68 +180,104 @@ class apiCall {
         }
         .resume()
     }
-    func getUserBookmarkLists(completion:@escaping (Result<[BookmarkList], NetworkError>) -> ()) -> Bool {
+    func getUserBookmarkLists(completion:@escaping (Result<[BookmarkList], NetworkError>) -> ()) {
         var urlComponents = getStandardUrlComponents()
         urlComponents.path = urlComponents.path + "/lists"
         
-        guard let url = urlComponents.url?.absoluteURL  else { return false }
+        guard let url = urlComponents.url?.absoluteURL  else {
+            completion(.failure(.invalidURL))
+            return
+        }
         guard let request = try? getStandardRequest(url: url) else {
             print("invalid url \(url)")
             completion(.failure(.invalidURL))
-            return false
+            return
         }
         
         URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
             let bmPage = try? JSONDecoder().decode(ListPage.self, from: jsonData!)
-
             let bookmarkLists = bmPage?.data
-
-            /*if(bmPage?.data == nil) {
-                print("bookmarkListsPage data: is nil")
-            } else {
-                print("bookmarkListsPage data: " + (bmPage?.data.description ?? " ERROR seems to be nil"))
-                
-            }*/
             DispatchQueue.main.async {
                 completion(.success(bookmarkLists ?? [BookmarkList]()))
             }
         }
         .resume()
-        return true
     }
     
-    func newBookmark(bookmarkUrl: URL) -> Result<Bool, NetworkError> {
+    func newBookmark(bookmarkUrl: URL, bookmarkList: BookmarkList?, completion:@escaping (Result<Bool, NetworkError>) -> ()) {
         var urlComponents = getStandardUrlComponents()
         urlComponents.path = urlComponents.path + "/links"
 
         guard let url = urlComponents.url?.absoluteURL  else {
             print("invalid urlComponent received")
-            return .failure(.invalidURL)
+            completion(.failure(.invalidURL))
+            return
         }
         guard var request = try? getStandardRequest(url: url, method: "POST") else {
             print("error getting standard request for method post")
-            return .failure(.invalidURL)
+            completion(.failure(.invalidURL))
+            return
         }
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let parameters: [String: Any] = [
+        var parameters: [String: Any] = [
             "url" : bookmarkUrl.absoluteString
         ]
+        if (bookmarkList != nil) {
+            parameters["lists"] = [bookmarkList!.id as Int]
+        }
         guard let httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: []) else {
             print("error encoding json data for POST request")
-            return .failure(.invalidURL)
+            completion(.failure(.invalidURL))
+            return
         }
         request.httpBody = httpBody as Data
 
         
         URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
-            // let bmPage = try? JSONDecoder().decode(BookmarkPage.self, from: jsonData!)
-            print("newBookmark response: \(response)")
+            let httpResponse = response as? HTTPURLResponse
+
             if (error != nil) {
-                print("dataTask failed with \(error)")
+                print("dataTask failed with \(error as Any)")
+            }
+            if ((httpResponse!.statusCode) == 422) {
+                do {
+                    let errorMessage = try JSONDecoder().decode(ErrorMessage.self, from: jsonData!)
+                    print("\tUnprocessable Entity 422: response: \n\(response as Any)")
+                    print("\t\tmessage: \(errorMessage.message ?? "nil message")")
+                    print("\t\terrors: \(errorMessage.errors?.url![0] ?? "no error provided" )")
+                    completion(.failure(.unprocessableEntity))
+                } catch { print(error) }
             }
         }
         .resume()
-        return .success(true)
+        completion(.success(true))
+    }
+    
+    func deleteBookmark(bookmark: Bookmark, completion:@escaping (Result<Bool, NetworkError>) -> ()){
+        var urlComponents = getStandardUrlComponents()
+        urlComponents.path = urlComponents.path + "/links/\(bookmark.id)"
+
+        guard let url = urlComponents.url?.absoluteURL  else {
+            completion(.failure(.invalidURL))
+            return
+        }
+        guard var request = try? getStandardRequest(url: url, method: "POST") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "DELETE"
+        
+        URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
+            print("Bookmarkd delete response: \(response as Any)")
+            if (error != nil) {
+                print("dataTask failed with \(error as Any)")
+            }
+            DispatchQueue.main.async {
+                completion(.success(true))
+            }
+        }
+        .resume()
     }
 }

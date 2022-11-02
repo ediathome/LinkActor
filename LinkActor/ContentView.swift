@@ -21,11 +21,11 @@ struct ContentView: View {
             Text("Select a list")
             Text("Select a bookmark")
         }
-        .navigationTitle("Bookmarks")
         .toolbar(content: {
             ToolbarItemGroup {
-                Text("@\(linkAceURL)")
-                    .frame(alignment: .leading)
+                Label("@\(linkAceURL)", systemImage: "bolt.horizontal.circle")
+                    .help("connected to \(linkAceURL)")
+                    .frame(alignment: .trailing)
             }
         })
         
@@ -34,57 +34,7 @@ struct ContentView: View {
     }
 }
 
-struct Sidebar: View {
-    
-    @AppStorage("linkAceURL") var linkAceURL: String = ""
-    @AppStorage("linkAceApiKey") var linkAceApiKey: String = ""
-    
-    // @State var bookmarkLists = [BookmarkList]()
-    @StateObject private var bookmarkListsModel = BookmarkListsViewModel()
-    
-    @State var loadDetails: LoadDetails?
-    @State private var loadingListsCompleted = false
-    
-    // @EnvironmentObject var bookmarksDataStore = BookmarksDataStore()
-    
-    var body: some View {
-        if bookmarkListsModel.loaded {
-            List {
-                NavigationLink("All", destination: AllBookmarksListView())
-                ForEach(bookmarkListsModel.lists) { bmList in
-                    NavigationLink(bmList.name ?? "", destination: BookmarksListView(bookmarkList: bmList))
-                }
-                NavigationLink("Trash", destination: TrashBookmarksListView())
-            }
-            .frame(width: 240, alignment: .topLeading)
-            .navigationTitle("Bookmarks")
-            .onAppear(perform: {
-                // insert some code to select the "All" item
-            })
-            .onChange(of: linkAceURL, perform: { newUrl in
-                bookmarkListsModel.reload()
-            })
-        }
-        else {
-            ProgressView()
-                .onChange(of: linkAceURL, perform: { newUrl in
-                    bookmarkListsModel.reload()
-                })
-                .alert(
-                    Text("Loading Bookmarks failed"),
-                    isPresented: $bookmarkListsModel.didError
-                ) {
-                    Button("Open Preferences") {
-                        NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-                    }
-                    Button("Dismiss") {}
-                }
-        message: {
-            Text("Please check the server address and API token in the preferences")
-        }
-        }
-    }
-}
+
 
 struct AllBookmarksListView: View {
 
@@ -94,7 +44,7 @@ struct AllBookmarksListView: View {
         VStack {
             BareBookmarksListView()
         }
-        .frame(width: 240, alignment: .topLeading)
+        .frame(width: .infinity, alignment: .topLeading)
     }
 }
 
@@ -105,7 +55,7 @@ struct BookmarksListView: View {
         VStack {
             BareBookmarksListView(bookmarkList: bookmarkList)
         }
-        .frame(width: 240, height: .infinity, alignment: .topLeading)
+        .frame(width: .infinity, height: .infinity, alignment: .topLeading)
     }
 }
 
@@ -115,7 +65,7 @@ struct TrashBookmarksListView: View {
         VStack {
             BareBookmarksListView(showTrash: true)
         }
-        .frame(width: 240, height: .infinity, alignment: .topLeading)
+        .frame(width: .infinity, height: .infinity, alignment: .topLeading)
     }
 }
 

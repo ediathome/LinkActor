@@ -36,7 +36,7 @@ struct BookmarkPage: Codable {
 }
 
 // MARK: - Datum
-struct Bookmark: Codable, Identifiable {
+struct Bookmark: Codable, Identifiable, Equatable {
     let id, userID: Int
     let url: String
     let title, description, icon: String?

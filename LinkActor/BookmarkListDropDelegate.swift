@@ -10,7 +10,10 @@ import SwiftUI
 
 struct BookmarkListDropDelegate: DropDelegate {
     // @Binding var imageUrls: [Int: URL]
-    @Binding var active: Int
+    // @Binding var active: Int
+    @State var bookmarksListView: BareBookmarksListView
+    @State var bookmarkList: BookmarkList?
+
     
     func validateDrop(info: DropInfo) -> Bool {
         if (info.hasItemsConforming(to: ["public.file-url"])) {
@@ -24,14 +27,25 @@ struct BookmarkListDropDelegate: DropDelegate {
     }
     
     func performDrop(info: DropInfo) -> Bool {
-        NSSound(named: "Submarine")?.play()
+
+        // print("location: \(info.location)")
+        
         if let item = info.itemProviders(for: ["public.url"]).first {
             item.loadItem(forTypeIdentifier: "public.url", options: nil) { (urlData, error) in
                 
                 let newBookmarkUrl = URL(dataRepresentation: urlData as! Data, relativeTo: nil)
                 print("\tnew url: \(newBookmarkUrl?.absoluteString)")
                 DispatchQueue.main.async {
-                    apiCall().newBookmark(bookmarkUrl: newBookmarkUrl!)
+                    apiCall().newBookmark(bookmarkUrl: newBookmarkUrl!, bookmarkList: bookmarkList, completion: { result in
+                        switch result {
+                        case .success(let stat):
+                            bookmarksListView.reloadData()
+                        case .failure(let error):
+                            print("\tERROR!")
+                            print("\treceived the following error in BookmarkListsViewModel \(error)")
+                        }
+                    })
+                    bookmarksListView.reloadData()
                 }
             }
             
@@ -44,20 +58,16 @@ struct BookmarkListDropDelegate: DropDelegate {
     }
     
     func dropUpdated(info: DropInfo) -> DropProposal? {
-        print("dropinfo: \(info.location)")
         if (info.hasItemsConforming(to: ["public.file-url"])) {
-            print("\tcontains public.file-url")
             return nil
         }
         if (info.hasItemsConforming(to: ["public.url"])) {
-            print("\tcontains public.url")
             return nil
         }
         return nil
     }
     
     func dropExited(info: DropInfo) {
-        self.active = 0
     }
     
     func getGridPosition(location: CGPoint) -> Int {
