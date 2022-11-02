@@ -28,9 +28,6 @@ struct ContentView: View {
                     .frame(alignment: .trailing)
             }
         })
-        
-        
-        
     }
 }
 
@@ -44,7 +41,11 @@ struct AllBookmarksListView: View {
         VStack {
             BareBookmarksListView()
         }
-        .frame(width: .infinity, alignment: .topLeading)
+        .frame(
+            minWidth: 240,
+            maxWidth: .infinity,
+            alignment: .topLeading
+        )
     }
 }
 
@@ -77,7 +78,11 @@ struct BookmarkDetailView: View {
         
         let bmdesc = try? AttributedString.init(markdown: bookmark.description ?? "")
         let bmlink = try? AttributedString.init(markdown: "[" + bookmark.url + "](" + bookmark.url + ")")
+        let createdDate = bookmark.createdAt ?? nil
+        let updatedDate = bookmark.updatedAt ?? nil
+        let deletedDate = bookmark.deletedAt ?? nil
         
+        VStack(alignment: .leading, spacing: 0) {
         VStack(alignment: .leading, spacing: 24) {
             Text(bookmark.title ?? "untitled")
                 .font(.title)
@@ -88,11 +93,38 @@ struct BookmarkDetailView: View {
                 .textSelection(.enabled)
             Text(bmlink ?? "Invalid URL")
                 .textSelection(.enabled)
-            
         }
         .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Color(NSColor.textBackgroundColor))
+        
+        VStack(alignment: .leading, spacing: 6) {
+            if(createdDate != nil) {
+                HStack(alignment: .top, spacing: 10) {
+                    Text("Erstellt: " )
+                        .frame(width: 120, alignment: .trailing)
+                    Text((bookmark.dateFrom(isoDate:createdDate ?? "") ?? "-"))
+                }
+            }
+            if(updatedDate != nil) {
+                HStack(alignment: .top, spacing: 10) {
+                    Text("Letzte Änderung: " )
+                        .frame(width: 120, alignment: .trailing)
+                    Text((bookmark.dateFrom(isoDate:updatedDate ?? "") ?? "-"))
+                }
+            }
+            if(deletedDate != nil) {
+                HStack(alignment: .top, spacing: 10) {
+                    Text("Gelöscht: " )
+                        .frame(width: 120, alignment: .trailing)
+                    Text((bookmark.dateFrom(isoDate:deletedDate ?? "") ?? "-"))
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: (3*32), alignment: .topLeading)
+        .background(Color(NSColor.textBackgroundColor))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 

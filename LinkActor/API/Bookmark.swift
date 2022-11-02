@@ -60,6 +60,20 @@ struct Bookmark: Codable, Identifiable, Equatable {
         case updatedAt = "updated_at"
         case deletedAt = "deleted_at"
     }
+    
+    func dateFrom(isoDate: String) -> String? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSZ"
+
+        let date = dateFormatter.date(from:isoDate) ?? nil
+
+        if (date != nil) {
+            let returnString = date!.formatted()
+            return returnString
+        }
+        return nil
+    }
 }
 
 // MARK: - Link
