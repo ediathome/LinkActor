@@ -42,7 +42,7 @@ struct SidebarBookmarkListDropDelegate: DropDelegate {
                             // bookmarkList.reloadData()
                         case .failure(let error):
                             print("\tSidebarBookmarkListDropDelegate result -> ERROR!")
-                            print("\treceived the following error in BookmarkListsViewModel \(error)")
+                            print("\treceived the following error \(error)")
                         }
                     })
                 }
