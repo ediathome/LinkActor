@@ -34,11 +34,11 @@ struct BookmarkListDropDelegate: DropDelegate {
             item.loadItem(forTypeIdentifier: "public.url", options: nil) { (urlData, error) in
                 
                 let newBookmarkUrl = URL(dataRepresentation: urlData as! Data, relativeTo: nil)
-                print("\tnew url: \(newBookmarkUrl?.absoluteString)")
+
                 DispatchQueue.main.async {
                     apiCall().newBookmark(bookmarkUrl: newBookmarkUrl!, bookmarkList: bookmarkList, completion: { result in
                         switch result {
-                        case .success(let stat):
+                        case .success(_):
                             bookmarksListView.reloadData()
                         case .failure(let error):
                             print("\tERROR!")
@@ -51,8 +51,6 @@ struct BookmarkListDropDelegate: DropDelegate {
             
             return true
             
-        } else {
-            return false
         }
         return false
     }

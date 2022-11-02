@@ -89,8 +89,8 @@ struct BareBookmarksListView: View {
         print("now remove bookmark \(String(describing: deleteBookmark.title))")
         apiCall().deleteBookmark(bookmark: deleteBookmark, completion: { result in
             switch result {
-            case .success(let lists):
-                if let index = bookmarks.index(of: deleteBookmark) {
+            case .success(_):
+                if let index = bookmarks.firstIndex(of: deleteBookmark) {
                     self.bookmarks.remove(at: index)
                 }
                 reloadData()

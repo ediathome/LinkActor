@@ -37,7 +37,7 @@ struct SidebarBookmarkListDropDelegate: DropDelegate {
                     apiCall().newBookmark(bookmarkUrl: newBookmarkUrl!, bookmarkList: bookmarkList, completion: { result in
                         print("\tresult: \(result)")
                         switch result {
-                        case .success(let stat): break
+                        case .success(_):
                             print("SidebarBookmarkListDropDelegate result -> SUCESS")
                             // bookmarkList.reloadData()
                         case .failure(let error):
