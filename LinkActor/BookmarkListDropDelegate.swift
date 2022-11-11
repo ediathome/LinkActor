@@ -9,11 +9,9 @@ import Foundation
 import SwiftUI
 
 struct BookmarkListDropDelegate: DropDelegate {
-    // @Binding var imageUrls: [Int: URL]
-    // @Binding var active: Int
+
     @State var bookmarksListView: BareBookmarksListView
 
-    
     func validateDrop(info: DropInfo) -> Bool {
         if (info.hasItemsConforming(to: ["public.file-url"])) {
             return false
@@ -26,9 +24,6 @@ struct BookmarkListDropDelegate: DropDelegate {
     }
     
     func performDrop(info: DropInfo) -> Bool {
-
-        // print("location: \(info.location)")
-        
         if let item = info.itemProviders(for: ["public.url"]).first {
             item.loadItem(forTypeIdentifier: "public.url", options: nil) { (urlData, error) in
                 
