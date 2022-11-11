@@ -35,13 +35,13 @@ struct BareBookmarksListView: View {
     func sort() {
         filteredBookmarks?.sort(by: { bookmarkA, bookmarkB in
             switch sortParameter {
-            case 1: // Title
+            case 1:
                 return bookmarkA.title! < bookmarkB.title!
-            case 2: // Created at
-                return bookmarkA.createdAt! < bookmarkB.createdAt!
-            case 3: // Updated at
-                return bookmarkA.updatedAt! < bookmarkB.createdAt!
-            case 4: // Created at
+            case 2:
+                return bookmarkA.createdAt! > bookmarkB.createdAt!
+            case 3:
+                return bookmarkA.updatedAt! > bookmarkB.createdAt!
+            case 4:
                 return bookmarkA.deletedAt! < bookmarkB.createdAt!
             default:
                 return bookmarkA.title! < bookmarkB.title!
