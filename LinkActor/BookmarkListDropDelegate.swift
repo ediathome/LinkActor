@@ -12,7 +12,6 @@ struct BookmarkListDropDelegate: DropDelegate {
     // @Binding var imageUrls: [Int: URL]
     // @Binding var active: Int
     @State var bookmarksListView: BareBookmarksListView
-    @State var bookmarkList: BookmarkList?
 
     
     func validateDrop(info: DropInfo) -> Bool {
@@ -36,7 +35,7 @@ struct BookmarkListDropDelegate: DropDelegate {
                 let newBookmarkUrl = URL(dataRepresentation: urlData as! Data, relativeTo: nil)
 
                 DispatchQueue.main.async {
-                    apiCall().newBookmark(bookmarkUrl: newBookmarkUrl!, bookmarkList: bookmarkList, completion: { result in
+                    apiCall().newBookmark(bookmarkUrl: newBookmarkUrl!, bookmarkList: self.bookmarksListView.bookmarkList, completion: { result in
                         switch result {
                         case .success(_):
                             bookmarksListView.reloadData()
