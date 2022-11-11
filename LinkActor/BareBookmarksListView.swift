@@ -56,7 +56,7 @@ struct BareBookmarksListView: View {
         filter(by: filterText)
     }
     var body: some View {
-        let dropDelegate = BookmarkListDropDelegate(bookmarksListView: self, bookmarkList: bookmarkList)
+        let dropDelegate = BookmarkListDropDelegate(bookmarksListView: self)
         
         VStack(alignment: .leading, spacing: 0) {
             Picker(selection: $sortParameter,
