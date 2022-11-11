@@ -205,6 +205,7 @@ class apiCall {
     }
     
     func newBookmark(bookmarkUrl: URL, bookmarkList: BookmarkList?, completion:@escaping (Result<Bool, NetworkError>) -> ()) {
+        print("APICall bookmarkList: " + (bookmarkList?.name ?? "no list given!" ))
         var urlComponents = getStandardUrlComponents()
         urlComponents.path = urlComponents.path + "/links"
 
@@ -219,13 +220,15 @@ class apiCall {
             return
         }
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let parameters = [
+          "url": bookmarkUrl.absoluteString,
+          "lists": [bookmarkList!.id as Int],
+          "is_private": true // this must be there for lists to work!
+        ] as [String : Any]
         
-        var parameters: [String: Any] = [
-            "url" : bookmarkUrl.absoluteString
-        ]
-        if (bookmarkList != nil) {
-            parameters["lists"] = [bookmarkList!.id as Int]
-        }
+        print("parameters: \(parameters)")
+
         guard let httpBody = try? JSONSerialization.data(withJSONObject: parameters, options: []) else {
             print("error encoding json data for POST request")
             completion(.failure(.invalidURL))
