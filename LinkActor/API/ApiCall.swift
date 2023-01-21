@@ -165,7 +165,8 @@ class apiCall {
         urlComponents.path = urlComponents.path + "/lists/" + String(bookmarkList.id) + "/links"
         urlComponents.queryItems = [
            URLQueryItem(name: "order_by", value: "title"),
-           URLQueryItem(name: "order_dir", value: "asc")
+           URLQueryItem(name: "order_dir", value: "asc"),
+           URLQueryItem(name: "per_page", value: "-1"),
         ]
 
         guard let url = urlComponents.url?.absoluteURL  else { return }
@@ -202,10 +203,15 @@ class apiCall {
         }
         
         URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
-            let bmPage = try? JSONDecoder().decode(ListPage.self, from: jsonData!)
-            let bookmarkLists = bmPage?.data
-            DispatchQueue.main.async {
-                completion(.success(bookmarkLists ?? [BookmarkList]()))
+            do {
+                let bmPage = try JSONDecoder().decode(ListPage.self, from: jsonData!)
+                let bookmarkLists = bmPage.data
+                DispatchQueue.main.async {
+                    completion(.success(bookmarkLists))
+                }
+            } catch {
+                print ("Error when loading User's bookmark lists: " + error.localizedDescription)
+                print (error)
             }
         }
         .resume()
