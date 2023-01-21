@@ -52,6 +52,7 @@ struct BareBookmarksListView: View {
     }
     
     func didLoadBookmarks(bookmarks: [Bookmark]) {
+        print("didLoadBookmarksListView " + bookmarks.count.formatted())
         self.bookmarks = bookmarks
         filter(by: filterText)
     }

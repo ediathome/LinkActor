@@ -172,10 +172,17 @@ class apiCall {
         guard let request = try? getStandardRequest(url: url) else { return }
         
         URLSession.shared.dataTask(with: request) { (jsonData, response, error) in
-            let bmPage = try? JSONDecoder().decode(BookmarkPage.self, from: jsonData!)
-            let bookmarks = bmPage?.data
-            DispatchQueue.main.async {
-                completion(bookmarks ?? [Bookmark]())
+            print ("error: " + error.debugDescription)
+            
+            do {
+                let bmPage = try JSONDecoder().decode(BookmarkPage.self, from: jsonData!)
+                
+                let bookmarks = bmPage.data
+                DispatchQueue.main.async {
+                    completion(bookmarks ?? [Bookmark]())
+                }
+            } catch {
+                print (error)
             }
         }
         .resume()

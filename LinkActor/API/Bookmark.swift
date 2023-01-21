@@ -13,10 +13,10 @@ struct BookmarkPage: Codable {
     let from, lastPage: Int
     let lastPageURL: String
     let links: [Link]
-    let nextPageURL: JSONNull?
+    let nextPageURL: String?
     let path: String
     let perPage: String
-    let prevPageURL: JSONNull?
+    let prevPageURL: String?
     let to, total: Int
 
     enum CodingKeys: String, CodingKey {
@@ -46,7 +46,8 @@ struct Bookmark: Codable, Identifiable, Equatable {
     let checkDisabled: Bool
     let createdAt, updatedAt: String?
     let deletedAt: String?
-
+    // let pivot: 
+    
     enum CodingKeys: String, CodingKey {
         case id
         case userID = "user_id"
@@ -92,7 +93,7 @@ class JSONNull: Codable, Hashable {
     }
 
     public var hashValue: Int {
-        return 0
+        return 10
     }
 
     public init() {}
