@@ -16,7 +16,7 @@ struct ListPage: Codable {
     let links: [Link]
     let nextPageURL: JSONNull?
     let path: String
-    let perPage: String
+    let perPage: Int
     let prevPageURL: JSONNull?
     let to, total: Int
 

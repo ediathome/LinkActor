@@ -15,7 +15,7 @@ struct BookmarkPage: Codable {
     let links: [Link]
     let nextPageURL: String?
     let path: String
-    let perPage: String
+    let perPage: Int
     let prevPageURL: String?
     let to, total: Int
 
