@@ -17,7 +17,7 @@ struct BareBookmarksListView: View {
     @State var filterText = ""
     @State var active = 0
     @State var selection : String? = nil
-    @State var sortParameter = 1
+    @State var sortParameter = 3
 
     let toolbarPlacement: SearchFieldPlacement = .toolbar
     
@@ -33,6 +33,7 @@ struct BareBookmarksListView: View {
     }
     
     func sort() {
+        print ("now sort with parameter: " + sortParameter.formatted())
         filteredBookmarks?.sort(by: { bookmarkA, bookmarkB in
             switch sortParameter {
             case 1:
@@ -40,9 +41,9 @@ struct BareBookmarksListView: View {
             case 2:
                 return bookmarkA.createdAt! > bookmarkB.createdAt!
             case 3:
-                return bookmarkA.updatedAt! > bookmarkB.createdAt!
+                return bookmarkA.updatedAt! > bookmarkB.updatedAt!
             case 4:
-                return bookmarkA.deletedAt! < bookmarkB.createdAt!
+                return bookmarkA.deletedAt! < bookmarkB.deletedAt!
             default:
                 return bookmarkA.title! < bookmarkB.title!
             }
@@ -55,6 +56,7 @@ struct BareBookmarksListView: View {
         print("didLoadBookmarksListView " + bookmarks.count.formatted())
         self.bookmarks = bookmarks
         filter(by: filterText)
+        sort()
     }
     var body: some View {
         let dropDelegate = BookmarkListDropDelegate(bookmarksListView: self)
@@ -63,9 +65,10 @@ struct BareBookmarksListView: View {
             Picker(selection: $sortParameter,
                    label: Image(systemName: "line.horizontal.3.decrease.circle"),
                    content: {
+                        Text("Updated at").tag(3)
                         Text("Title").tag(1)
                         Text("Created at").tag(2)
-                        Text("Updated at").tag(3)
+                        
                 if (showTrash  ?? false) {
                             Text("Deleted at").tag(4)
                         }
@@ -122,8 +125,6 @@ struct BareBookmarksListView: View {
         } else {
             apiCall().getBoomarksInList(bookmarkList: self.bookmarkList!, completion: didLoadBookmarks(bookmarks:))
         }
-        self.filteredBookmarks = bookmarks
-        filter(by: "t")
     }
     func removeBookmark(deleteBookmark: Bookmark) {
         print("now remove bookmark \(String(describing: deleteBookmark.title))")

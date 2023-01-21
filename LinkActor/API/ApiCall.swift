@@ -80,8 +80,9 @@ class apiCall {
         urlComponents.path = urlComponents.path + (apiUrlPath ?? "/links")
 
         urlComponents.queryItems = [
-           URLQueryItem(name: "order_by", value: "title"),
-           URLQueryItem(name: "order_dir", value: "asc")
+           URLQueryItem(name: "order_by", value: "updated_at"),
+           URLQueryItem(name: "order_dir", value: "desc"),
+           URLQueryItem(name: "per_page", value: "0"),
         ]
         
         guard let url = urlComponents.url?.absoluteURL  else { return }
@@ -164,9 +165,9 @@ class apiCall {
         var urlComponents = getStandardUrlComponents()
         urlComponents.path = urlComponents.path + "/lists/" + String(bookmarkList.id) + "/links"
         urlComponents.queryItems = [
-           URLQueryItem(name: "order_by", value: "title"),
-           URLQueryItem(name: "order_dir", value: "asc"),
-           URLQueryItem(name: "per_page", value: "-1"),
+           URLQueryItem(name: "order_by", value: "updated_at"),
+           URLQueryItem(name: "order_dir", value: "desc"),
+           URLQueryItem(name: "per_page", value: "0"),
         ]
 
         guard let url = urlComponents.url?.absoluteURL  else { return }
